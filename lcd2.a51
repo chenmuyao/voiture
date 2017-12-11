@@ -42,6 +42,7 @@ tir				bit		p3.4			;P3.4 (T1) TIR Interagir avec la carte maitre P3.5 T0  ?
 ;Varialbes utilises
 tour			equ		R1
 message			equ		R2
+tir_or_not		bit		b.0
 
 ;----------------------------------------------------------------------------------
 ;Au reset
@@ -309,6 +310,7 @@ recu_0:
 				cjne	A,#30h,recu_4
 				clr		P1.2				;initialisation
 				clr		P1.3
+				clr		tir_or_not
 				mov		message,#0
 				clr		ES					;Arreter le mode Interruption
 				
@@ -332,9 +334,11 @@ att_env:		jnb		ti,att_env			;Attendre l'envoi de messaage
 
 				;si "4" est recu
 recu_4:
-				cjne	A,#34h,recu_d
+				cjne	A,#34h,recu_d 		;si tir_or_not = 0, laser&sirene; sinon j'ignore
+				jb		tir_or_not,fin_int_serial
 				setb	P1.2
 				setb	P1.3
+				setb	tir_or_not
 				ljmp	fin_int_serial
 
 				;si "D" est recu
@@ -364,6 +368,7 @@ fin_int_serial:
 debut:
  				;Initialisation
 				mov		tour,#30h
+				mov		b,#0
 				;Initialisation de LCD
  				lcall	tempo_02s		;temporisation 0.2s
 				lcall	init_lcd
