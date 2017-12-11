@@ -16,7 +16,7 @@ E				bit		p2.7			;bit de validation des donnees en entre
 LCD				equ		p0				;bus de donnees de l'afficheur
 
 busy			bit		p0.7			;drapeau de fin d'execution d'une commande:
-											;BUSY=0	terminé
+											;BUSY=0	terminÃ©
 											;BUSY=1	en cours
 
 
@@ -39,7 +39,9 @@ INT_EX1			bit		p3.3			;J8 CON2 p3.3 ?
 
 tir				bit		p3.4			;P3.4 (T1) TIR Interagir avec la carte maitre P3.5 T0  ?
 		
-
+;Varialbes utilises
+tour			equ		R1
+message			equ		R2
 
 ;----------------------------------------------------------------------------------
 ;Au reset
@@ -57,7 +59,7 @@ tir				bit		p3.4			;P3.4 (T1) TIR Interagir avec la carte maitre P3.5 T0  ?
 		;E-		"en_lcd_data"		Envoi d'une donnee au LCD
 		;F-		"ligne_1"			Ecriture sur la ligne 1 du LCD
 		;G-		"ligne_2"			Ecriture sur la ligne 2 du LCD
-		;H-   	textes à envoyer
+		;H-   	textes Ã  envoyer
 		;I-   	"emi_car"			Emission d'un caracatere
 		;J-   	"envoi_message" 	Envoi du message
 		;K-   	temposisations
@@ -85,7 +87,7 @@ init_lcd:
 				
 				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-				mov		lcd,#01h			;efface affichage remet compteur à 0
+				mov		lcd,#01h			;efface affichage remet compteur Ã  0
 				lcall	en_lcd_code		;appel au sous programme de validation d'une commande
 				lcall	tempo_50ms		;temporisation 50ms
 				mov		lcd,#0Ch			;allumage de l'afficheur
@@ -121,7 +123,7 @@ en_lcd_code:								;sous programme de validation d'une instruction
 
 ;-----------------------------------------------------------------------------------------------
 ;test du busy flag pour envoi d'autres instructions ou donnees
-test_busy_lcd:								;test de la valeur du BUSY FLAG renvoyé sur DB7 par le LCD	
+test_busy_lcd:								;test de la valeur du BUSY FLAG renvoyÃ© sur DB7 par le LCD	
 				mov		lcd,#0ffh			
 				clr		RS
 				setb	RW
@@ -131,7 +133,7 @@ attend_busy:
             	clr		E
 				ret
 ;--------------------------------------------------------------------------------------------------	
-;validation de l'envoi d'un caractère avec verification de l'etat du BUSY FLAG
+;validation de l'envoi d'un caractÃ¨re avec verification de l'etat du BUSY FLAG
 en_lcd_data:
 				setb	RS
 				clr		RW
@@ -141,7 +143,7 @@ en_lcd_data:
 				ret
 				
 ;----------------------------------------------------------------------------------------------------
-;écriture du texte sur la ligne premiere ligne du lcd
+;Ã©criture du texte sur la ligne premiere ligne du lcd
 ligne_1:
 				mov		LCD,#01h
 				lcall	en_lcd_code
@@ -151,20 +153,37 @@ ligne_1:
 				
 
 ;-----------------------------------------------------------------------------------------------------
-;écriture du texte sur la seconde ligne du LCD
+;Ã©criture du texte sur la seconde ligne du LCD
 ligne_2:
 				mov		LCD,#0C0h
 				lcall	en_lcd_code
 				ret
 
 ;-----------------------------------------------------------------------------------------------------				
-;4 les textes à envoyer
+;4 les textes Ã  envoyer
 				org		00F0h
 texte1:
-				DB		'TOUR : '
+				DB		'****EQUIPE 2****'
 				DB		0
-texte2:			DB		'Message : '
+				DB		'***EN ATTENTE***'
 				DB		0
+;texte2:
+;				DB		'****TOUR '
+;				DB		0
+;				DB		'******'
+;				DB		0
+;				DB		'****GO!GO!GO!***'
+;				DB		0
+texte3:
+				DB		'****TOUR '
+				DB		0
+				DB		'******'
+				DB		0
+				DB		'***MESSAGE:'
+				DB		0
+				DB		'****'
+				DB		0
+
 ;-----------------------------------------------------------------------------------------------------
 ;5 vos sous programmes
 				org		0180h
@@ -191,52 +210,160 @@ envoi_message:						;sauvegarder Acc avant l'appel de la fonction
 				lcall	emi_car
             	ret
 
+envoi_message2:						;sauvegarder Acc avant l'appel de la fonction
+				lcall	ligne_1
+				lcall	emi_car
+				mov		lcd,tour
+				lcall	en_lcd_data
+				lcall	tempo_50ms		;temporisation 50ms
+				inc		dptr
+				lcall	emi_car
+				inc		dptr                                                                                                                                                                                                                                                                                 
+				lcall	ligne_2
+				lcall	emi_car
+            	ret
+
+envoi_message3:						;sauvegarder Acc avant l'appel de la fonction
+				lcall	ligne_1
+				lcall	emi_car
+				mov		lcd,tour
+				lcall	en_lcd_data
+				lcall	tempo_50ms		;temporisation 50ms
+				inc		dptr
+				lcall	emi_car
+				inc		dptr                                                                                                                                                                                                                                                                                 
+				lcall	ligne_2
+				lcall	emi_car
+				mov		lcd,message
+				lcall	en_lcd_data
+				lcall	tempo_50ms		;temporisation 50ms
+				inc		dptr
+				lcall	emi_car
+            	ret
+
 ;-----------------------------------------------------------------------------------------------------
 ;tempo de 2s
-tempo_2s:
-				mov		r7,#40
-attente2:
-				lcall	tempo_50ms		;temporisation 50ms
-				djnz	r7,attente2
-				ret
+;tempo_2s:
+;				mov		r7,#40
+;attente2:
+;				lcall	tempo_50ms		;temporisation 50ms
+;				djnz	r7,attente2
+;				ret
+tempo_2s:		mov R7,#20
+attente21:   	mov R6,#200
+attente22:   	mov R5,#250
+      			DJNZ R5,$
+      			DJNZ R6,attente22
+      			DJNZ R7,attente21
+      			RET
 				
 ;-----------------------------------
 ;tempo de 0,2s
-tempo_02s:
-				mov		r7,#4
-attente02:
-				lcall	tempo_50ms		;temporisation 50ms
-				djnz	r7,attente02
-				ret
+;tempo_02s:
+;				mov		r7,#4
+;attente02:
+;				lcall	tempo_50ms		;temporisation 50ms
+;				djnz	r7,attente02
+;				ret
+
+tempo_02s:		mov R7,#2
+attente021:   	mov R6,#200
+attente022:   	mov R5,#250
+      			DJNZ R5,$
+      			DJNZ R6,attente022
+      			DJNZ R7,attente021
+      			RET
+
 ;----------------------------------------------------------------------------------
 ;tempo de 50ms
-tempo_50ms:
-				mov		tmod,#21h
-				clr		tr0
-				clr		tf0
-				mov		th0,#3Ch
- 				mov		tl0,#0B6h
- 				setb	tr0
-rep_50:			jnb		tf0,rep_50
-jsq_50:			clr		tr0
-				clr		tf0
-				ret
+;tempo_50ms:
+				;mov		tmod,#21h
+;				clr		tr0
+;				clr		tf0
+;				mov		th0,#3Ch
+; 				mov		tl0,#0B6h
+; 				setb	tr0
+;rep_50:			jnb		tf0,rep_50
+;jsq_50:			clr		tr0
+;				clr		tf0
+;				ret
+
+tempo_50ms:		
+attente501:   	mov R6,#100
+attente502:   	mov R5,#250
+      			DJNZ R5,$
+      			DJNZ R6,attente022
+      			RET
+
 ;-----------------------------------------------------------------------------------------------------
 ;programme principal
 				org		0220h
 
 INT_Serial:		
+				push	Acc
 				mov		A,SBUF
 				clr		RI
-				;si "0" est recu
+				
+				;si "0" est recu, GO!
+recu_0:			
+				cjne	A,#30h,recu_4
+				clr		P1.2				;initialisation
+				clr		P1.3
+				mov		message,#0
+				clr		ES					;Arreter le mode Interruption
+				
+				cjne	tour,#3h,continue_0
+				setb	TB8					;Envoyer le message "1" pour Arreter la voiture
+				mov		SBUF,#031h
+att_env2:		jnb		ti,att_env2			;Attendre l'envoi de messaage
+				clr		ti
+				ljmp	fin_int_serial
+
+continue_0:				
+				setb	TB8					;Envoyer le message "0" pour declencher la voiture
+				mov		SBUF,#030h
+att_env:		jnb		ti,att_env			;Attendre l'envoi de messaage
+				clr		ti
+				cpl		f0					;Mettre le drapeau a 1 pour changer l'affichage	
+				inc		tour 				;Increment le numero de tours
+				lcall	tempo_02s
+				setb	ES
+				ljmp	fin_int_serial
+
+				;si "4" est recu
+recu_4:
+				cjne	A,#34h,recu_d
+				setb	P1.2
+				setb	P1.3
+				ljmp	fin_int_serial
+
 				;si "D" est recu
+recu_d:
+				cjne	A,#44h,recu_c
+				mov		message,#44h
+				ljmp	fin_int_serial
+				
 				;si "C" est recu
+recu_c:			
+				cjne	A,#43h,recu_g
+				mov		message,#43h
+				ljmp	fin_int_serial
+									
 				;si "G" est recu
+recu_g:
+				cjne	A,#47h,fin_int_serial
+				mov		message,#47h
+				clr		P1.2
+				clr		P1.3
+				ljmp	fin_int_serial
+
+fin_int_serial:	
+				pop		Acc
 				reti
 
 debut:
  				;Initialisation
-
+				mov		tour,#30h
 				;Initialisation de LCD
  				lcall	tempo_02s		;temporisation 0.2s
 				lcall	init_lcd
@@ -250,14 +377,27 @@ debut:
 				setb	ea
 				setb	tr1
 
-
-
-boucleprog:
+boucle_att:
 				mov		dptr,#texte1
 				lcall	envoi_message
 				lcall	tempo_2s		;temporisation 2s
-				sjmp	boucleprog		
+				jnb		f0,boucle_att
+				
+								
 
+;boucle_exec:	mov		dptr,#texte2
+;				lcall	envoi_message2
+;				lcall	tempo_50ms
+;				ljmp	boucle_exec
+
+
+boucle_laser:	mov		dptr,#texte3
+				lcall	envoi_message3
+				lcall	tempo_50ms
+				ljmp	boucle_laser
+					
+
+fin:
 ;-----------------------------------------------------------------------------------------------------
 ;fin de compilation
 				end 
