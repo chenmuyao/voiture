@@ -244,36 +244,37 @@ envoi_message3:						;sauvegarder Acc avant l'appel de la fonction
 
 ;-----------------------------------------------------------------------------------------------------
 ;tempo de 2s
-;tempo_2s:
-;				mov		r7,#40
-;attente2:
-;				lcall	tempo_50ms		;temporisation 50ms
-;				djnz	r7,attente2
-;				ret
-tempo_2s:		mov R7,#20
-attente21:   	mov R6,#200
-attente22:   	mov R5,#250
-      			DJNZ R5,$
-      			DJNZ R6,attente22
-      			DJNZ R7,attente21
-      			RET
+tempo_2s:
+				mov		r7,#40
+attente2:
+				lcall	tempo_50ms		;temporisation 50ms
+				djnz	r7,attente2
+				ret
+
+;tempo_2s:		mov R7,#20
+;attente21:   	mov R6,#200
+;attente22:   	mov R5,#250
+;      			DJNZ R5,$
+;      			DJNZ R6,attente22
+;      			DJNZ R7,attente21
+;      			RET
 				
 ;-----------------------------------
 ;tempo de 0,2s
-;tempo_02s:
-;				mov		r7,#4
-;attente02:
-;				lcall	tempo_50ms		;temporisation 50ms
-;				djnz	r7,attente02
-;				ret
+tempo_02s:
+				mov		r7,#4
+attente02:
+				lcall	tempo_50ms		;temporisation 50ms
+				djnz	r7,attente02
+				ret
 
-tempo_02s:		mov R7,#2
-attente021:   	mov R6,#200
-attente022:   	mov R5,#250
-      			DJNZ R5,$
-      			DJNZ R6,attente022
-      			DJNZ R7,attente021
-      			RET
+;tempo_02s:		mov R7,#2
+;attente021:   	mov R6,#200
+;attente022:   	mov R5,#250
+;      			DJNZ R5,$
+;      			DJNZ R6,attente022
+;      			DJNZ R7,attente021
+;      			RET
 
 ;----------------------------------------------------------------------------------
 ;tempo de 50ms
@@ -282,8 +283,8 @@ attente022:   	mov R5,#250
 ;				clr		tr0
 ;				clr		tf0
 ;				mov		th0,#3Ch
-; 				mov		tl0,#0B6h
-; 				setb	tr0
+;				mov		tl0,#0B6h
+;				setb	tr0
 ;rep_50:			jnb		tf0,rep_50
 ;jsq_50:			clr		tr0
 ;				clr		tf0
@@ -293,7 +294,7 @@ tempo_50ms:
 attente501:   	mov R6,#100
 attente502:   	mov R5,#250
       			DJNZ R5,$
-      			DJNZ R6,attente022
+      			DJNZ R6,attente502
       			RET
 
 ;-----------------------------------------------------------------------------------------------------
@@ -311,10 +312,10 @@ recu_0:
 				clr		P1.2				;initialisation
 				clr		P1.3
 				clr		tir_or_not
-				mov		message,#0
+				mov		message,#30h
 				clr		ES					;Arreter le mode Interruption
 				
-				cjne	tour,#3h,continue_0
+				cjne	tour,#33h,continue_0
 				setb	TB8					;Envoyer le message "1" pour Arreter la voiture
 				mov		SBUF,#031h
 att_env2:		jnb		ti,att_env2			;Attendre l'envoi de messaage
@@ -369,6 +370,8 @@ debut:
  				;Initialisation
 				mov		tour,#30h
 				mov		b,#0
+				clr		P1.2			
+				clr		P1.3
 				;Initialisation de LCD
  				lcall	tempo_02s		;temporisation 0.2s
 				lcall	init_lcd
@@ -398,7 +401,7 @@ boucle_att:
 
 boucle_laser:	mov		dptr,#texte3
 				lcall	envoi_message3
-				lcall	tempo_50ms
+				lcall	tempo_2s
 				ljmp	boucle_laser
 					
 
